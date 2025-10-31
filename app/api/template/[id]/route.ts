@@ -16,11 +16,10 @@ function validateJsonStructure(data: unknown): boolean {
   }
 }
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   console.log("🔹 [API] /api/template/[id] called");
 
-  const { params } = context;
-  const id = params?.id;
+  const { id } = await context.params
   console.log("🆔 Playground ID:", id);
 
   if (!id) {

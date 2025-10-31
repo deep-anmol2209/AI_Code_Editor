@@ -145,12 +145,12 @@ export const defaultEditorOptions: monaco.editor.IStandaloneEditorConstructionOp
   mouseWheelZoom: true,
 
   selectionHighlight: true,
-  occurrencesHighlight: true,
+  occurrencesHighlight: "multiFile",
 
   suggestOnTriggerCharacters: true,
   acceptSuggestionOnEnter: "on",
   tabCompletion: "on",
-  wordBasedSuggestions: true,
+  wordBasedSuggestions: "currentDocument",
 
   formatOnPaste: true,
   formatOnType: true,
