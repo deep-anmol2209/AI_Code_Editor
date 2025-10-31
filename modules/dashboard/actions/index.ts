@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { Playground } from "@/lib/generated/prisma";
 import { getCurrentUser } from "@/modules/auth/actions";
 import { revalidatePath } from "next/cache";
 
@@ -27,22 +28,27 @@ export const getAllPlaygroundsForUser = async () => {
 
 export const createPlayground=async(data:{
     title: string;
-    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
-    description: string
+    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR" | "GITHUB" ;
+    description: string;
+    repoUrl: string;
 })=>{
    const user = await getCurrentUser();
    if (!user?.id) throw new Error("User not authenticated");
-
-   const {template, title, description}= data;
+  console.log(user);
+  
+   const {template, title, description, repoUrl}= data;
    try{
     const playground= await db.playground.create({
         data:{
-            title: title,
+            title: title ?? "",
             description: description ?? "",
             template: template,
-            userId: user.id 
+            repoUrl: repoUrl,
+            userId: user.id
         }
     })
+    console.log("playy: ",playground);
+    
     return playground
    }catch(error){
     console.log(error);
@@ -82,29 +88,33 @@ export const editProjectById = async(id:string, data:{title:string, description:
     }
 }
 
-export const duplicateProjectByid= async(id:string)=>{
-try {
-    const originalPlaygroudData= await db.playground.findUnique({
-        where:{id},
-    })
-    if(!originalPlaygroudData){
-        throw new Error("original playground not found")
+export const duplicateProjectByid = async (id: string): Promise<Playground> => {
+    try {
+      const originalPlaygroundData = await db.playground.findUnique({
+        where: { id },
+      });
+  
+      if (!originalPlaygroundData) {
+        throw new Error("Original playground not found");
+      }
+  
+      const duplicatedPlayground = await db.playground.create({
+        data: {
+          title: `${originalPlaygroundData.title} (copy)`,
+          description: originalPlaygroundData.description ?? "",
+          template: originalPlaygroundData.template,
+          userId: originalPlaygroundData.userId,
+        },
+      });
+  
+      revalidatePath("/dashboard");
+      return duplicatedPlayground; // ✅ returning the new project
+    } catch (error) {
+      console.error(error);
+      throw error; // ✅ rethrow so the client can handle it
     }
-    const duplicatedPlayground = await db.playground.create({
-        data:{
-            title:`${originalPlaygroudData.title} (copy)`,
-            description: `${originalPlaygroudData.description}`,
-            template: `${originalPlaygroudData.template}`,
-            userId: `${originalPlaygroudData.userId}`
-        }
-    })
-   revalidatePath("/dashboard")
-   return duplicatedPlayground
-} catch (error) {
-    console.log(error);
-    
-}
-}
+  };
+  
 
 export const toggleStarMarked = async(playgroundId:string, isChecked:boolean)=>{
     const user = await getCurrentUser()

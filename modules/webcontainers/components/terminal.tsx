@@ -1,10 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react";
-import { Terminal } from "xterm";
-import { FitAddon } from "xterm-addon-fit";
-import { WebLinksAddon } from "xterm-addon-web-links";
-import { SearchAddon } from "xterm-addon-search";
 import "xterm/css/xterm.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,10 +28,11 @@ TerminalComponent = forwardRef<TerminalRef, TerminalProps>(({
   theme = "dark",
   webContainerInstance
 }, ref) => {
+  
   const terminalRef = useRef<HTMLDivElement>(null);
-  const term = useRef<Terminal | null>(null);
-  const fitAddon = useRef<FitAddon | null>(null);
-  const searchAddon = useRef<SearchAddon | null>(null);
+  const term = useRef<any>(null);
+  const fitAddon = useRef<any>(null);
+  const searchAddon = useRef<any>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -121,6 +118,59 @@ TerminalComponent = forwardRef<TerminalRef, TerminalProps>(({
       }
     },
   }));
+
+   // ✅ Dynamically import xterm in browser only
+   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const initTerminal = async () => {
+      const { Terminal } = await import("@xterm/xterm");
+      const { FitAddon } = await import("xterm-addon-fit");
+      const { WebLinksAddon } = await import("xterm-addon-web-links");
+      const { SearchAddon } = await import("xterm-addon-search");
+
+      const terminal = new Terminal({
+        cursorBlink: true,
+        fontFamily: '"Fira Code", monospace',
+        fontSize: 14,
+        theme: terminalThemes[theme],
+      });
+
+      const fitAddonInstance = new FitAddon();
+      const webLinksAddon = new WebLinksAddon();
+      const searchAddonInstance = new SearchAddon();
+
+      terminal.loadAddon(fitAddonInstance);
+      terminal.loadAddon(webLinksAddon);
+      terminal.loadAddon(searchAddonInstance);
+
+      terminal.open(terminalRef.current!);
+      terminal.writeln("🚀 WebContainer Terminal Ready");
+
+      terminal.onData(handleTerminalInput);
+
+      term.current = terminal;
+      fitAddon.current = fitAddonInstance;
+      searchAddon.current = searchAddonInstance;
+
+      setTimeout(() => fitAddonInstance.fit(), 100);
+      writePrompt();
+    };
+
+    initTerminal();
+
+    const resizeObserver = new ResizeObserver(() => {
+      fitAddon.current?.fit();
+    });
+
+    if (terminalRef.current) resizeObserver.observe(terminalRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+      term.current?.dispose?.();
+      term.current = null;
+    };
+  }, [theme]);
 
   const executeCommand = useCallback(async (command: string) => {
     if (!webContainerInstance || !term.current) return;
@@ -272,8 +322,16 @@ TerminalComponent = forwardRef<TerminalRef, TerminalProps>(({
     }
   }, [executeCommand, writePrompt]);
 
-  const initializeTerminal = useCallback(() => {
-    if (!terminalRef.current || term.current) return;
+  const initializeTerminal = useCallback( async() => {
+    if (typeof window === "undefined") return; // SSR guard
+  if (!terminalRef.current || term.current) return;
+
+  // ✅ Dynamically import xterm & addons (browser only)
+  const { Terminal } = await import("xterm");
+  const { FitAddon } = await import("xterm-addon-fit");
+  const { WebLinksAddon } = await import("xterm-addon-web-links");
+  const { SearchAddon } = await import("xterm-addon-search");
+  await import("xterm/css/xterm.css");
 
     const terminal = new Terminal({
       cursorBlink: true,

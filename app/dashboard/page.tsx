@@ -95,8 +95,7 @@ const Page = async () => {
               projects={playgrounds || []}
               onDeleteProject={deleteProjectById}
               onUpdateProject={editProjectById}
-              onDuplicateProject={async(id: string)=>{
-                await duplicateProjectByid(id)}}
+              onDuplicateProject={duplicateProjectByid}
             />
           </div>
         )}

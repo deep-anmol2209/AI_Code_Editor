@@ -340,8 +340,34 @@ onTriggerSuggestion}: PlaygroundEditorProps) => {
 
  // CRITICAL: Override Tab key with high priority and prevent default Monaco behavior
  if (tabCommandRef.current) {
-  tabCommandRef.current.dispose()
+  editor._standaloneKeybindingService.removeDynamicKeybinding(tabCommandRef.current)
 }
+
+tabCommandRef.current = editor.addCommand(
+  monaco.KeyCode.Tab,
+  () => {
+    console.log("TAB PRESSED", {
+      hasSuggestion: !!currentSuggestionRef.current,
+      hasActiveSuggestion: hasActiveSuggestionAtPosition(),
+      isAccepting: isAcceptingSuggestionRef.current,
+      suggestionAccepted: suggestionAcceptedRef.current,
+    })
+
+    if (isAcceptingSuggestionRef.current) return
+    if (suggestionAcceptedRef.current) {
+      editor.trigger("keyboard", "tab", null)
+      return
+    }
+
+    if (currentSuggestionRef.current && hasActiveSuggestionAtPosition()) {
+      const accepted = acceptCurrentSuggestion()
+      if (accepted) return
+    }
+
+    editor.trigger("keyboard", "tab", null)
+  },
+  "editorTextFocus && !editorReadonly && !suggestWidgetVisible"
+)
 
 tabCommandRef.current = editor.addCommand(
   monaco.KeyCode.Tab,
@@ -473,10 +499,7 @@ editor.onDidChangeModelContent((e: any) => {
         inlineCompletionProviderRef.current.dispose()
         inlineCompletionProviderRef.current = null
       }
-      if (tabCommandRef.current) {
-        tabCommandRef.current.dispose()
-        tabCommandRef.current = null
-      }
+      tabCommandRef.current = null
     }
   }, [])
 

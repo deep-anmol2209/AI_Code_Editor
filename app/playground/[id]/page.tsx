@@ -164,12 +164,11 @@ const updatedTemplateData = JSON.parse(
     JSON.stringify(latestTemplateData)
   );
 
-  // @ts-ignore
-    const updateFileContent = (items: any[]) =>
-      // @ts-ignore
-    items.map((item) => {
+
+  const updateFileContent = (items: (TemplateFolder | TemplateFile)[]): (TemplateFolder | TemplateFile)[] => {
+    return items.map((item) => {
       if ("folderName" in item) {
-        return { ...item, items: updateFileContent(item.items) };
+        return { ...item, items: updateFileContent(item.items) }; // recursive call
       } else if (
         item.filename === fileToSave?.filename &&
         item.fileExtension === fileToSave?.fileExtension
@@ -178,6 +177,8 @@ const updatedTemplateData = JSON.parse(
       }
       return item;
     });
+  };
+  
   updatedTemplateData.items = updateFileContent(
     updatedTemplateData.items
   );
@@ -451,7 +452,7 @@ toast.success(
                           suggestionPosition={aiSuggestion.position}
                           onAcceptSuggestion={(editor, monaco)=>{aiSuggestion.acceptSuggestion(editor, monaco)}}
 
-                          onRejectSuggestion={(type, )=>{aiSuggestion.rejectSuggetion(type)}}
+                          onRejectSuggestion={(type, )=>{aiSuggestion.rejectSuggestion(type)}}
                           onTriggerSuggestion={(type, editor)=>{aiSuggestion.fetchSuggestion(type, editor)}}
                         />
                       </ResizablePanel>

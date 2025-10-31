@@ -42,7 +42,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 tokenType: account.token_type,
                 scope: account.scope,
                 idToken: account.id_token,
-                sessionState: account.session_state,
+                sessionState: account.session_state ? String(account.session_state): null,
               },
             },
           },
@@ -75,7 +75,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               scope: account.scope,
               idToken: account.id_token,
              
-              sessionState: account.session_state,
+              sessionState: account.session_state ? String(account.session_state) : null,
             },
           });
         }
@@ -84,7 +84,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return true;
     },
 
-    async jwt({ token }) {
+    async jwt({ token, account }) {
+
+      if (account) {
+        token.provider = account.provider; // <-- ADD THIS
+      }
+      if (account && account.provider === "github") {
+        token.githubAccessToken = account.access_token as string || undefined; // Save GitHub token in JWT
+      }
+    
+
       if(!token.sub) return token;
       const existingUser = await getUserById(token.sub)
 
@@ -107,6 +116,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
     if(token.sub && session.user){
       session.user.role = token.role
+      session.user.provider = token.provider; // ✅ include provider
+      session.user.githubAccessToken = token.githubAccessToken as string || undefined;
     }
 
     return session;

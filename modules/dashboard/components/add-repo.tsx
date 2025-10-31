@@ -1,10 +1,32 @@
+"use client"
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
+import { useSession, signIn } from "next-auth/react";
+
 import Image from "next/image";
+import { useState } from "react";
+import ImportRepoModal from "./github-repo-modal";
+import GithubRepoModal from "./github-repo-modal";
 
 const AddRepo = () => {
+  const { data: session } = useSession();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
+  const handleImportClick = () => {
+    console.log(session);
+
+    if (session?.user.provider !== "github") {
+      alert("connect with github first");
+      return
+
+    }
+    setIsModalOpen(true)
+  }
+
   return (
+    <>
     <div
+      onClick={handleImportClick}
       className="group relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-gradient-to-br from-white to-gray-50 
       dark:from-gray-900 dark:to-gray-800 shadow-lg hover:shadow-2xl hover:scale-[1.02] cursor-pointer 
       transition-all duration-500 ease-in-out flex justify-between items-center p-6 backdrop-blur-md"
@@ -31,8 +53,10 @@ const AddRepo = () => {
             Connect your GitHub repository and start coding instantly.
           </p>
         </div>
-      </div>
+        
 
+      </div>
+      
       <Image
         src="/addGithub.svg"
         alt="Open GitHub repository"
@@ -41,6 +65,12 @@ const AddRepo = () => {
         className="z-10 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3"
       />
     </div>
+    <GithubRepoModal
+    open={isModalOpen}
+    onOpenChange={setIsModalOpen}
+    githubToken={session?.user.githubAccessToken || ""}
+  />
+  </>
   );
 };
 

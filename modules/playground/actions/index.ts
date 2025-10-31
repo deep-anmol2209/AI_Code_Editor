@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { TemplateFolder } from "../lib/path-to-json";
+import { TemplateFolder } from "../utils/playground-utils";
 import { getCurrentUser } from "@/modules/auth/actions";
 
 
@@ -13,7 +13,9 @@ export const getPlaygroundById = async(id:string)=>{
         const playground = await db.playground.findUnique({
             where:{id},
             select:{
+              id: true,
                 title:true,
+                template: true,
                 templateFiles:{
                     select:{
                         content:true
@@ -27,27 +29,30 @@ export const getPlaygroundById = async(id:string)=>{
     }
 }
 
-export const SaveUpdatedCode = async(playgroundId:string , data:TemplateFolder)=>{
+export const SaveUpdatedCode = async (playgroundId: string, data: TemplateFolder) => {
     const user = await getCurrentUser();
-  if (!user) return null;
-
-  try {
-    const updatedPlayground = await db.templateFile.upsert({
-        where:{
-            playgroundId
+    if (!user) return null;
+  
+    try {
+      const updatedPlayground = await db.templateFile.upsert({
+        where: {
+          playgroundId,
         },
-        update:{
-            content:JSON.stringify(data)
+        update: {
+          content: JSON.stringify(data),
+          updatedAt: new Date(), // optional, Prisma usually handles @updatedAt
         },
-        create:{
-            playgroundId,
-            content:JSON.stringify(data)
-        }
-    })
-
-    return updatedPlayground;
-  } catch (error) {
-     console.log("SaveUpdatedCode error:", error);
-    return null;
-  }
-}
+        create: {
+          playgroundId,
+          content: JSON.stringify(data),
+          createdDate: new Date(), // must set explicitly for non-nullable
+        },
+      });
+  
+      return updatedPlayground;
+    } catch (error) {
+      console.log("SaveUpdatedCode error:", error);
+      return null;
+    }
+  };
+  

@@ -54,12 +54,13 @@ import {
   Eye,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Playground } from "@/lib/generated/prisma";
 
 interface ProjectTableProps {
   projects: Project[];
   onUpdateProject?: (id: string, data: { title: string; description: string }) => Promise<void>;
   onDeleteProject?: (id: string) => Promise<void>;
-  onDuplicateProject?: (id: string) => Promise<void>;
+  onDuplicateProject?: (id: string) => Promise<Playground>;
   onMarkasFavorite?: (id: string) => Promise<void>;
 }
 

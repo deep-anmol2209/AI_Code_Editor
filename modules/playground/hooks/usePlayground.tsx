@@ -41,8 +41,10 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
       const data = await getPlaygroundById(id);
       console.log("playground: ", data);
       
-
-      //   @ts-ignore
+      if (!data) {
+        throw new Error("No playground data found");
+      }
+      
       setPlaygroundData(data);
       const rawContent = data?.templateFiles?.[0]?.content;
 

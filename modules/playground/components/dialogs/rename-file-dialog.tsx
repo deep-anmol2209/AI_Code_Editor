@@ -83,7 +83,7 @@ function RenameFileDialog({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!filename.trim()}>
+            <Button type="submit" disabled={!filename?.trim()}>
               Rename
             </Button>
           </DialogFooter>

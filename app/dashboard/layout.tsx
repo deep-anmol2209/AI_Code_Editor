@@ -38,7 +38,6 @@ export default async function DashboardLayout({
       >
         {/* Sidebar with soft blur & glow */}
         <div className="shadow-xl border-r border-white/30 dark:border-zinc-700/50 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xl">
-          {/*@ts-expect-error DashboardSidebar expects specific prop type */}
           <DashboardSidebar initialPlaygroundData={FormattedPlaygroundData} />
         </div>
 
