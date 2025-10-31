@@ -30,7 +30,7 @@ export const createPlayground=async(data:{
     title: string;
     template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR" | "GITHUB" ;
     description: string;
-    repoUrl: string;
+    repoUrl?: string;
 })=>{
    const user = await getCurrentUser();
    if (!user?.id) throw new Error("User not authenticated");

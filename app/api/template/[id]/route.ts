@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { templatePath } from "@/lib/template";
 import path from "path";
 import fs from "fs/promises";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 function validateJsonStructure(data: unknown): boolean {
   try {
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
   console.log("🆔 Playground ID:", id);
 
   if (!id) {
-    return new Response(JSON.stringify({ error: "Missing playground ID" }), { status: 400 });
+    return NextResponse.json({ error: "Missing playground ID" },{ status: 400 });
   }
 
   const playground = await db.playground.findUnique({
@@ -35,13 +35,13 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
   console.log("📂 Playground fetched:", JSON.stringify(playground, null, 2));
 
   if (!playground) {
-    return new Response(JSON.stringify({ error: "Playground not found" }), { status: 404 });
+    return NextResponse.json({ error: "Playground not found" }, { status: 404 });
   }
 
   // ✅ If already saved template in DB
   if (playground.templateFiles?.[0]?.content) {
     console.log("🟢 Template found in DB, returning existing content.");
-    return new Response(JSON.stringify({ templateJson: playground.templateFiles[0].content }), {
+    return NextResponse.json({ templateJson: playground.templateFiles[0].content }, {
       status: 200,
     });
   }
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
       console.log("📦 Fetching GitHub repo zip...");
       if (!playground.repoUrl) {
         console.error("❌ No repo URL found for this playground");
-        return new Response(JSON.stringify({ error: "No repo URL found for this playground" }), {
+        return NextResponse.json({ error: "No repo URL found for this playground" }, {
           status: 400,
         });
       }
@@ -84,16 +84,16 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
       }
 
       console.log("✅ Repo JSON structure validated successfully.");
-      return new Response(JSON.stringify({ templateJson: repoTree }), { status: 200 });
+      return NextResponse.json({ templateJson: repoTree }, { status: 200 });
 
     } catch (error) {
       console.error("💥 GitHub import error:", error);
       console.error("💥 Error stack:", error instanceof Error ? error.stack : "No stack trace");
-      return new Response(
-        JSON.stringify({
+      return NextResponse.json(
+        {
           error: "Failed to import GitHub repo",
           details: String(error),
-        }),
+        },
         { status: 500 }
       );
     }
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
 
     if (!templateDir) {
       console.error("❌ Invalid template path");
-      return new Response(JSON.stringify({ error: "Invalid template path" }), { status: 404 });
+      return NextResponse.json({ error: "Invalid template path" }, { status: 404 });
     }
 
     const inputPath = path.join(process.cwd(), templateDir);
@@ -129,16 +129,16 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
     await fs.unlink(outputFile);
     console.log("🧹 Cleaned up temporary file.");
 
-    return new Response(JSON.stringify({ templateJson: result }), { status: 200 });
+    return NextResponse.json({ templateJson: result }, { status: 200 });
   } catch (error) {
     console.error("💥 Local template error:", error);
     console.error("💥 Error stack:", error instanceof Error ? error.stack : "No stack trace");
-    return new Response(
-      JSON.stringify({
+    return NextResponse.json(
+      {
         error: "Failed to generate local template",
         details: String(error),
-      }),
-      { status: 500 }
-    );
+      },
+      { status: 500 })
+    ;
   }
 }

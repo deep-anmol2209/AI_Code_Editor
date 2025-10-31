@@ -199,7 +199,7 @@ Generate suggestion:`;
 
       // Remove any leading/trailing explanatory text
       const lines = suggestion.split("\n");
-      const codeLines = lines.filter(line => {
+      const codeLines = lines.filter((line: string) => {
         const trimmed = line.trim();
         // Filter out explanatory lines
         return !(

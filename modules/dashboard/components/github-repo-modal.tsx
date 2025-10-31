@@ -14,13 +14,19 @@ interface ImportRepoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
+interface GithubRepo {
+  id: number;
+  name: string;
+  full_name: string;
+  description: string | null;
+  archive_url: string;
+}
 export default function GithubRepoModal({
   githubToken,
   open,
   onOpenChange,
 }: ImportRepoModalProps) {
-  const [repos, setRepos] = useState<any[]>([]);
+  const [repos, setRepos] = useState<GithubRepo[]>([]);
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
@@ -49,7 +55,7 @@ export default function GithubRepoModal({
 
  
 
-  const handleImport = async (repo) => {
+  const handleImport = async (repo: GithubRepo) => {
     setDownloading(true);
     console.log("repo: ", repo);
     
@@ -73,8 +79,6 @@ export default function GithubRepoModal({
       // 4️⃣ Set repo tree in the existing Zustand store
       const { setTemplateData, setPlaygroundId } = useFileExplorer.getState();
       setPlaygroundId(playground.id);
-      setTemplateData(repoTree);
-  
       // 5️⃣ Navigate to editor
       // window.location.href = `/playground/${playground.id}`;
     } catch (error) {

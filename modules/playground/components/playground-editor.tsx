@@ -118,6 +118,10 @@ onTriggerSuggestion}: PlaygroundEditorProps) => {
           freeInlineCompletions: (completions: any) => {
             console.log("freeInlineCompletions called")
           },
+
+          disposeInlineCompletions: (completions: any) => {
+            console.log("disposeInlineCompletions called", completions);
+          },
         }
       },
       [suggestion, suggestionPosition],

@@ -6,6 +6,7 @@ interface UseWebContainerProps {
   templateData: TemplateFolder;
 }
 
+let webcontainerInstance: WebContainer | null = null; 
 interface UseWebContaierReturn {
   serverUrl: string | null;
   isLoading: boolean;
@@ -28,7 +29,13 @@ export const useWebContainer = ({
 
     async function initializeWebContainer() {
       try {
-        const webcontainerInstance = await WebContainer.boot();
+        if (webcontainerInstance) {
+          console.log("✅ Reusing existing WebContainer instance");
+          if (mounted) setInstance(webcontainerInstance);
+          setIsLoading(false);
+          return;
+        }
+         webcontainerInstance = await WebContainer.boot();
 
         if (!mounted) return;
 

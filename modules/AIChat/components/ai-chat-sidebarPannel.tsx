@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -62,6 +62,9 @@ interface ChatMessage {
 interface AIChatSidePanelProps {
   isOpen: boolean;
   onClose: () => void;
+}
+interface MarkdownCodeProps extends React.ComponentProps<'code'> {
+  inline?: boolean; // ADD THIS
 }
 
 const MessageTypeIndicator: React.FC<{
@@ -490,10 +493,11 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                           remarkPlugins={[remarkGfm, remarkMath]}
                           rehypePlugins={[rehypeKatex]}
                           components={{
-                            code: ({ children, className, inline }) => {
+                            code: ({inline, className, children, ...props}: MarkdownCodeProps) => {
+                              
                               if (inline) {
                                 return (
-                                  <code className="bg-zinc-800 px-1 py-0.5 rounded text-sm">
+                                  <code className="bg-zinc-800 px-1 py-0.5 rounded text-sm" {...props}>
                                     {children}
                                   </code>
                                 );
@@ -501,7 +505,9 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
                               return (
                                 <div className="bg-zinc-800 rounded-lg p-4 my-4">
                                   <pre className="text-sm text-zinc-100 overflow-x-auto">
-                                    <code className={className}>{children}</code>
+                                    <code className={className} {...props}>
+                                      {children}
+                                    </code>
                                   </pre>
                                 </div>
                               );
@@ -627,3 +633,4 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
     </TooltipProvider>
   );
 };
+
