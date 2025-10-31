@@ -27,8 +27,10 @@ import ToggleAI from "@/modules/playground/components/toggle-ai";
 import { useAISuggestions } from "@/modules/playground/hooks/useAISuggestion";
 import { editor } from "monaco-editor";
 
-const MainPlaygroundPage = ({ children }: { children: ReactNode }) => {
-  const { id } = useParams<{ id: string }>();
+const MainPlaygroundPage = ({ params }: { params: {id:string} }) => {
+  const { id } = params
+  console.log("id:", id);
+  
   const { playgroundData, templateData, isLoading, error, saveTemplateData } = usePlayground(id)
   const [isPreviewVisible, setIsPreviewVisible] = useState(false)
  const aiSuggestion= useAISuggestions()
