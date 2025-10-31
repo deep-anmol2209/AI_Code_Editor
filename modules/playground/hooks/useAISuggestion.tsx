@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-
+import type * as monaco from "monaco-editor"; // ✅ import Monaco types
 interface AISuggestionsState {
   suggestion: string | null;
   isLoading: boolean;
@@ -10,10 +10,13 @@ interface AISuggestionsState {
 
 interface UseAISuggestionsReturn extends AISuggestionsState {
   toggleEnabled: () => void;
-  fetchSuggestion: (type: string, editor: any) => void;
-  acceptSuggestion: (editor: any, monaco: any) => void;
-  rejectSuggestion: (editor: any) => void;
-  clearSuggestion: (editor: any) => void;
+  fetchSuggestion: (type: string, editor: monaco.editor.IStandaloneCodeEditor) => void;
+  acceptSuggestion: (
+    editor: monaco.editor.IStandaloneCodeEditor,
+    monacoInstance: typeof monaco
+  ) => void;
+  rejectSuggestion: (editor: monaco.editor.IStandaloneCodeEditor) => void;
+  clearSuggestion: (editor: monaco.editor.IStandaloneCodeEditor) => void;
 }
 
 export const useAISuggestions = (): UseAISuggestionsReturn => {
@@ -32,7 +35,7 @@ export const useAISuggestions = (): UseAISuggestionsReturn => {
     setState((prev) => ({ ...prev, isEnabled: !prev.isEnabled }));
   }, []);
 
-  const fetchSuggestion = useCallback((type: string, editor: any) => {
+  const fetchSuggestion = useCallback(  (type: string, editor: monaco.editor.IStandaloneCodeEditor) => {
     if (!state.isEnabled || !editor) return;
 
     const model = editor.getModel();
@@ -106,9 +109,9 @@ export const useAISuggestions = (): UseAISuggestionsReturn => {
     }, 400); // 400ms debounce
   }, [state.isEnabled]);
 
-  const acceptSuggestion = useCallback((editor: any, monaco: any) => {
+  const acceptSuggestion = useCallback((editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: typeof monaco) => {
     setState((currentState) => {
-      if (!currentState.suggestion || !currentState.position || !editor || !monaco) {
+      if (!currentState.suggestion || !currentState.position || !editor) {
         return currentState;
       }
 
@@ -117,7 +120,7 @@ export const useAISuggestions = (): UseAISuggestionsReturn => {
 
       editor.executeEdits("", [
         {
-          range: new monaco.Range(line, column, line, column),
+          range: new monacoInstance.Range(line, column, line, column),
           text: sanitizedSuggestion,
           forceMoveMarkers: true,
         },
@@ -136,34 +139,39 @@ export const useAISuggestions = (): UseAISuggestionsReturn => {
     });
   }, []);
 
-  const rejectSuggestion = useCallback((editor: any) => {
-    setState((currentState) => {
-      if (editor && currentState.decoration.length > 0) {
-        editor.deltaDecorations(currentState.decoration, []);
-      }
+  const rejectSuggestion = useCallback(
+    (editor: monaco.editor.IStandaloneCodeEditor) => {
+      setState((currentState) => {
+        if (editor && currentState.decoration.length > 0) {
+          editor.deltaDecorations(currentState.decoration, []);
+        }
 
-      return {
-        ...currentState,
-        suggestion: null,
-        position: null,
-        decoration: [],
-      };
-    });
-  }, []);
-
-  const clearSuggestion = useCallback((editor: any) => {
-    setState((currentState) => {
-      if (editor && currentState.decoration.length > 0) {
-        editor.deltaDecorations(currentState.decoration, []);
-      }
-      return {
-        ...currentState,
-        suggestion: null,
-        position: null,
-        decoration: [],
-      };
-    });
-  }, []);
+        return {
+          ...currentState,
+          suggestion: null,
+          position: null,
+          decoration: [],
+        };
+      });
+    },
+    []
+  );
+  const clearSuggestion = useCallback(
+    (editor: monaco.editor.IStandaloneCodeEditor) => {
+      setState((currentState) => {
+        if (editor && currentState.decoration.length > 0) {
+          editor.deltaDecorations(currentState.decoration, []);
+        }
+        return {
+          ...currentState,
+          suggestion: null,
+          position: null,
+          decoration: [],
+        };
+      });
+    },
+    []
+  );
 
   return {
     ...state,

@@ -88,7 +88,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <Providers session={session}>{children}</Providers>
+        <Providers session={session!}>{children}</Providers>
       </body>
     </html>
   );

@@ -6,12 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Copy, Trash2, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { WebContainer, WebContainerProcess } from "@webcontainer/api";
+
+import type { FitAddon } from "@xterm/addon-fit";
+import type { SearchAddon } from "@xterm/addon-search";
+import type { WebLinksAddon } from "@xterm/addon-web-links";
+import { Terminal } from "xterm";
+
 
 interface TerminalProps {
   webcontainerUrl?: string;
   className?: string;
   theme?: "dark" | "light";
-  webContainerInstance?: any;
+  webContainerInstance?: WebContainer | null;
 }
 
 // Define the methods that will be exposed through the ref
@@ -30,9 +37,9 @@ TerminalComponent = forwardRef<TerminalRef, TerminalProps>(({
 }, ref) => {
   
   const terminalRef = useRef<HTMLDivElement>(null);
-  const term = useRef<any>(null);
-  const fitAddon = useRef<any>(null);
-  const searchAddon = useRef<any>(null);
+  const term = useRef<Terminal | null>(null);
+  const fitAddon = useRef<FitAddon | null>(null);
+const searchAddon = useRef<SearchAddon | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -42,8 +49,8 @@ TerminalComponent = forwardRef<TerminalRef, TerminalProps>(({
   const cursorPosition = useRef<number>(0);
   const commandHistory = useRef<string[]>([]);
   const historyIndex = useRef<number>(-1);
-  const currentProcess = useRef<any>(null);
-  const shellProcess = useRef<any>(null);
+  const currentProcess = useRef<WebContainerProcess | null>(null);
+  const shellProcess = useRef<WebContainerProcess | null>(null);
 
   const terminalThemes = {
     dark: {

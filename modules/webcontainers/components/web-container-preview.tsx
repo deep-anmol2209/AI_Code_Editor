@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { TemplateFolder } from "@/modules/playground/utils/playground-utils";
 import { WebContainer } from "@webcontainer/api";
 import TerminalComponent from "./terminal";
-
+import { TerminalRef } from "./terminal";
 /* ------------------------------------------------------------------
    ✅ Interface Definitions
 ------------------------------------------------------------------ */
@@ -50,7 +50,7 @@ function WebContainerPreview({
 
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [isSetupInProgress, setIsSetupProgress] = useState(false);
-  const terminalRef = useRef<any>(null);
+  const terminalRef = useRef<TerminalRef>(null);
 
   /* ------------------------------------------------------------
      🔄 Reset setup state when forceResetup changes
@@ -247,7 +247,7 @@ useEffect(() => {
 
           {/* Terminal */}
           <div className="flex-1 p-4">
-            <TerminalComponent ref={terminalRef} webContainerInstance={instance} theme="dark" className="h-full" />
+            <TerminalComponent ref={terminalRef} webContainerInstance ={instance} theme="dark" className="h-full" />
           </div>
         </div>
       ) : (
