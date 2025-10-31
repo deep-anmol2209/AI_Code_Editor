@@ -1,3 +1,7 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+
 import { readTemplateStructureFromJson, saveTemplateStructureToJson } from "@/modules/playground/lib/path-to-json";
 import { zipToTree } from "@/modules/playground/lib/zip-to-tree";
 import { db } from "@/lib/db";
