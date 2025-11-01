@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { Playground } from "@/lib/generated/prisma";
+import { Playground } from "@prisma/client";
 import { getCurrentUser } from "@/modules/auth/actions";
 import { revalidatePath } from "next/cache";
 
