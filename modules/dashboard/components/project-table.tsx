@@ -54,7 +54,7 @@ import {
   Eye,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Playground } from "@/lib/generated/prisma";
+import { Playground } from "@prisma/client";
 
 interface ProjectTableProps {
   projects: Project[];
