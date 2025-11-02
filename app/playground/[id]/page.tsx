@@ -146,13 +146,16 @@ const handleSave= useCallback(async(fileId?: string)=>
   {
     const targetedFileId= fileId || activeFileId;
     if(!targetedFileId) return;
-
+    
     const fileToSave = openFiles.find((f)=>f.id === targetedFileId);
+
     const latestTemplateData= useFileExplorer.getState().templateData; 
     if(!latestTemplateData) return;
     
     try {
       const filePath = findFilePath(fileToSave!, latestTemplateData);
+      console.log("file path: ", filePath);
+      
   if (!filePath) {
     toast.error(
       `Could not find path for file: ${fileToSave?.filename}.${fileToSave?.fileExtension}`
@@ -219,6 +222,8 @@ toast.success(
 }
 
   },[activeFileId, openFiles, writeFileSync, instance, setTemplateData, saveTemplateData, setOpenFiles])
+
+
 
   const handleSaveAll = async () => {
     const unsavedFiles = openFiles.filter((f) => f.hasUnsavedChanges);

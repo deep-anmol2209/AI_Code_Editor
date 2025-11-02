@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { zipToTree } from "@/modules/playground/lib/zip-to-tree";
+import { useRouter } from "next/navigation";
 import { createPlayground } from "../actions";
 import { useFileExplorer } from "@/modules/playground/hooks/useFileExplorer";
 import { log } from "util";
@@ -29,7 +30,8 @@ export default function GithubRepoModal({
   const [repos, setRepos] = useState<GithubRepo[]>([]);
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
-
+  const [downloadingRepoId, setDownloadingRepoId] = useState<number | null>(null);
+const router= useRouter()
   useEffect(() => {
     if (!open || !githubToken) return;
 
@@ -53,16 +55,16 @@ export default function GithubRepoModal({
     fetchRepos();
   }, [githubToken, open]);
 
- 
+
 
   const handleImport = async (repo: GithubRepo) => {
-    setDownloading(true);
+    setDownloadingRepoId(repo.id);
     console.log("repo: ", repo);
-    
+
     try {
       // 1️⃣ Fetch ZIP
-     
-  
+
+
       // 3️⃣ Create playground record
       const playground = await createPlayground({
         title: repo.name,
@@ -70,17 +72,18 @@ export default function GithubRepoModal({
         template: "GITHUB",
         repoUrl: repo.archive_url.replace("{archive_format}{/ref}", "zipball/main")
       });
-      if(!playground){
+      if (!playground) {
         console.log("error in creating playground");
-        
-        return 
+
+        return
       }
-  
+
       // 4️⃣ Set repo tree in the existing Zustand store
       const { setTemplateData, setPlaygroundId } = useFileExplorer.getState();
       setPlaygroundId(playground.id);
       // 5️⃣ Navigate to editor
       // window.location.href = `/playground/${playground.id}`;
+      router.push(`/playground/${playground.id}`)
     } catch (error) {
       console.error("Error importing repo:", error);
     } finally {
@@ -120,11 +123,11 @@ export default function GithubRepoModal({
                 >
                   <span className="font-medium">{repo.full_name}</span>
                   <button
-                  disabled= {downloading}
-                  onClick={()=>{handleImport(repo)}}
-                  className="border-1 py-2 px-4"
+                    disabled={downloadingRepoId === repo.id}
+                    onClick={() => handleImport(repo)}
+                    className="border-1 py-2 px-4 cursor-pointer hover:bg-[#030102]"
                   >
-                    {downloading ? "Importing...": "Import"}
+                    {downloadingRepoId === repo.id ? "Importing..." : "Import"}
                   </button>
                 </li>
               ))}
