@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import {signIn} from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ export default function SigninForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center min-w-[50%]">
+    <div className="flex items-center justify-center min-w-[50%]">
       <Card className="w-full max-w-md shadow-xl rounded-2xl border border-gray-200">
         {/* Header */}
         <CardHeader className="text-center space-y-2">
@@ -48,40 +48,26 @@ export default function SigninForm() {
             </Button>
           </div>
 
-          {/* Divider */}
-          <div className="flex items-center gap-2">
-            <div className="h-px flex-1 bg-muted" />
-            <span className="text-xs text-muted-foreground">or</span>
-            <div className="h-px flex-1 bg-muted" />
-          </div>
-
-          {/* Email/password form */}
-          <form className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="••••••••" />
-            </div>
-
-            <Button className="w-full">Sign in</Button>
-          </form>
-
-          {/* Footer */}
-          <p className="text-center text-sm text-muted-foreground">
-            Don’t have an account?{" "}
-            <a
-              href="/auth/sign-up"
-              className="font-medium text-primary hover:underline"
-            >
-              Sign up
-            </a>
-          </p>
+          
+     
         </CardContent>
+
+ <CardFooter>
+<p className="text-sm text-center text-gray-500 dark:text-gray-400 w-full">
+  By signing in, you agree to our{" "}
+  <a href="#" className="underline hover:text-primary">
+    Terms of Service
+  </a>{" "}
+  and{" "}
+  <a href="#" className="underline hover:text-primary">
+    Privacy Policy
+  </a>
+  .
+</p>
+</CardFooter> 
       </Card>
     </div>
   );
 }
+
+
